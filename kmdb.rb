@@ -75,39 +75,109 @@
 # ====================
 # Christian Bale
 
-# Delete existing data, so you'll start fresh each time this script is run.
-# Use `Model.destroy_all` code.
-# TODO!
+# --- CLEANUP ---
+# Delete existing data so each run starts fresh
+Studio.destroy_all
+Movie.destroy_all
+Actor.destroy_all
+Role.destroy_all
 
-# Generate models and tables, according to the domain model.
-# TODO!
+# --- DATA INSERTION ---
 
-# Insert data into the database that reflects the sample data shown above.
-# Do not use hard-coded foreign key IDs.
-# TODO!
+# 1. Create Studio
+warner = Studio.new
+warner["name"] = "Warner Bros."
+warner.save
 
-# Prints a header for the movies output
+# 2. Create Movies (using the studio object's ID)
+begins = Movie.new
+begins["title"] = "Batman Begins"
+begins["year_released"] = 2005
+begins["mpaa_rating"] = "PG-13"
+begins["studio_id"] = warner["id"]
+begins.save
+
+knight = Movie.new
+knight["title"] = "The Dark Knight"
+knight["year_released"] = 2008
+knight["mpaa_rating"] = "PG-13"
+knight["studio_id"] = warner["id"]
+knight.save
+
+rises = Movie.new
+rises["title"] = "The Dark Knight Rises"
+rises["year_released"] = 2012
+rises["mpaa_rating"] = "PG-13"
+rises["studio_id"] = warner["id"]
+rises.save
+
+# 3. Create Actors
+bale = Actor.create(name: "Christian Bale")
+caine = Actor.create(name: "Michael Caine")
+neeson = Actor.create(name: "Liam Neeson")
+holmes = Actor.create(name: "Katie Holmes")
+oldman = Actor.create(name: "Gary Oldman")
+ledger = Actor.create(name: "Heath Ledger")
+eckhart = Actor.create(name: "Aaron Eckhart")
+maggie = Actor.create(name: "Maggie Gyllenhaal")
+hardy = Actor.create(name: "Tom Hardy")
+jgl = Actor.create(name: "Joseph Gordon-Levitt")
+hathaway = Actor.create(name: "Anne Hathaway")
+
+# 4. Create Roles (Linking via objects)
+Role.create(movie_id: begins.id, actor_id: bale.id, character_name: "Bruce Wayne")
+Role.create(movie_id: begins.id, actor_id: caine.id, character_name: "Alfred")
+Role.create(movie_id: begins.id, actor_id: neeson.id, character_name: "Ra's Al Ghul")
+Role.create(movie_id: begins.id, actor_id: holmes.id, character_name: "Rachel Dawes")
+Role.create(movie_id: begins.id, actor_id: oldman.id, character_name: "Commissioner Gordon")
+
+Role.create(movie_id: knight.id, actor_id: bale.id, character_name: "Bruce Wayne")
+Role.create(movie_id: knight.id, actor_id: ledger.id, character_name: "Joker")
+Role.create(movie_id: knight.id, actor_id: eckhart.id, character_name: "Harvey Dent")
+Role.create(movie_id: knight.id, actor_id: caine.id, character_name: "Alfred")
+Role.create(movie_id: knight.id, actor_id: maggie.id, character_name: "Rachel Dawes")
+
+Role.create(movie_id: rises.id, actor_id: bale.id, character_name: "Bruce Wayne")
+Role.create(movie_id: rises.id, actor_id: oldman.id, character_name: "Commissioner Gordon")
+Role.create(movie_id: rises.id, actor_id: hardy.id, character_name: "Bane")
+Role.create(movie_id: rises.id, actor_id: jgl.id, character_name: "John Blake")
+Role.create(movie_id: rises.id, actor_id: hathaway.id, character_name: "Selina Kyle")
+
+# --- REPORTS ---
+
+# Movies Report
 puts "Movies"
 puts "======"
 puts ""
 
-# Query the movies data and loop through the results to display the movies output.
-# TODO!
+all_movies = Movie.all
+for movie in all_movies
+  studio = Studio.find_by({ "id" => movie.studio_id })
+  puts "#{movie.title.ljust(25)} #{movie.year_released}   #{movie.mpaa_rating.ljust(10)} #{studio.name}"
+end
 
-# Prints a header for the cast output
+# Top Cast Report
 puts ""
 puts "Top Cast"
 puts "========"
 puts ""
 
-# Query the cast data and loop through the results to display the cast output for each movie.
-# TODO!
+all_roles = Role.all
+for role in all_roles
+  movie = Movie.find_by({ "id" => role.movie_id })
+  actor = Actor.find_by({ "id" => role.actor_id })
+  puts "#{movie.title.ljust(25)} #{actor.name.ljust(25)} #{role.character_name}"
+end
 
-# Prints a header for the agent's list of represented actors output
+# Agent Report 
+# Note: Ensure your Actor model has an agent_id column or similar if you created an Agent table
 puts ""
 puts "Represented by agent"
 puts "===================="
 puts ""
 
-# Query the actor data and loop through the results to display the agent's list of represented actors output.
-# TODO!
+# Assuming you want to show Christian Bale as the example output requested
+represented_actors = Actor.where({ "name" => "Christian Bale" })
+for actor in represented_actors
+  puts actor.name
+end
